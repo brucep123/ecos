@@ -1,13 +1,28 @@
-from pathlib import Path
 import sqlite3
 
-schema_path = Path("database/schema.sql")
-database_path = Path("database/ecos.db")
 
-with sqlite3.connect(database_path) as conn:
+def main():
 
-    with open(schema_path, "r") as schema_file:
+    with open(
+        "schema.sql",
+        "r",
+        encoding="utf-8"
+    ) as file:
 
-        conn.executescript(schema_file.read())
+        schema = file.read()
 
-print("Database initialized")
+    conn = sqlite3.connect(
+        "database/ecos.db"
+    )
+
+    conn.executescript(schema)
+
+    conn.commit()
+
+    conn.close()
+
+    print("Database created.")
+
+
+if __name__ == "__main__":
+    main()

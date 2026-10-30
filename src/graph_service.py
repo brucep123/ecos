@@ -1,28 +1,36 @@
 import sqlite3
 
+from src.models import Node
+from src.models import Relationship
+
 
 class GraphService:
 
     def __init__(
         self,
-        db_path: str = "database/ecos.db"
+        db_path="database/ecos.db"
     ):
         self.db_path = db_path
 
     def create_node(
         self,
-        node_type: str,
-        name: str,
-        state: str = "Accepted"
-    ) -> int:
+        node_type,
+        name,
+        state="Accepted"
+    ):
 
         with sqlite3.connect(self.db_path) as conn:
+
+            conn.execute(
+                "PRAGMA foreign_keys = ON"
+            )
 
             cursor = conn.cursor()
 
             cursor.execute(
                 """
-                INSERT INTO nodes (
+                INSERT INTO nodes
+                (
                     node_type,
                     name,
                     state
@@ -40,18 +48,23 @@ class GraphService:
 
     def create_relationship(
         self,
-        source_node_id: int,
-        target_node_id: int,
-        relationship_type: str
-    ) -> int:
+        source_node_id,
+        target_node_id,
+        relationship_type
+    ):
 
         with sqlite3.connect(self.db_path) as conn:
+
+            conn.execute(
+                "PRAGMA foreign_keys = ON"
+            )
 
             cursor = conn.cursor()
 
             cursor.execute(
                 """
-                INSERT INTO relationships (
+                INSERT INTO relationships
+                (
                     source_node_id,
                     target_node_id,
                     relationship_type
@@ -81,11 +94,20 @@ class GraphService:
                     name,
                     state
                 FROM nodes
-                ORDER BY id
                 """
             )
 
-            return cursor.fetchall()
+            rows = cursor.fetchall()
+
+            return [
+                Node(
+                    id=row[0],
+                    node_type=row[1],
+                    name=row[2],
+                    state=row[3]
+                )
+                for row in rows
+            ]
 
     def get_relationships(self):
 
@@ -101,8 +123,17 @@ class GraphService:
                     target_node_id,
                     relationship_type
                 FROM relationships
-                ORDER BY id
                 """
             )
 
-            return cursor.fetchall()
+            rows = cursor.fetchall()
+
+            return [
+                Relationship(
+                    id=row[0],
+                    source_node_id=row[1],
+                    target_node_id=row[2],
+                    relationship_type=row[3]
+                )
+                for row in rows
+            ]

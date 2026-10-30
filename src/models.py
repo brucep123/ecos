@@ -21,4 +21,5 @@ class Relationship:
 class KnowledgeGap:
     gap_type: str
     severity: str
+    node_id: int
     description: str
